@@ -28,8 +28,8 @@ runs:
         if grep -i -q "pack" <<< "${{ inputs.command }}"; then
           sudo apt install jshon > /dev/null
           
-          for key in $(echo '${{ inputs.path-map }}' | jshon -k); do
-            value=$(echo '${{ inputs.path-map }}' | jshon -e "$key" -u)
+          for key in $(echo '${{ inputs.pack-map }}' | jshon -k); do
+            value=$(echo '${{ inputs.pack-map }}' | jshon -e "$key" -u)
             inputs+=" "$key" "$value""
           done
           
