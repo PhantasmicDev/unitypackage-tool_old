@@ -1,0 +1,43 @@
+name: UnityPackage Packer
+description: Pack or unpack .unitypackage files without the Unity editor or Unity project.
+inputs:
+  command:
+    description: "Chose between the 'pack' or 'unpack' command"
+    required: true
+  package:
+    description: "If packing, this is the package that will be generated, must end with '.unitypackage'. If unpacking this is the '.unitypackage' to extract."
+    required: true
+  pack-map:
+    description: "Key value entries of files/directories to pack and it's target location within the package."
+    required: false
+  output-path:
+    description: "If unpacking, this is the location where the package content will be extracted to."
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '3.1.x'
+    
+    - run: |
+        # Install Unity Packer
+        dotnet tool install --verbosity quiet --global unity-packer --version 2.1.3
+        
+        if grep -i -q "pack" <<< "${{ inputs.command }}"; then
+          sudo apt install jshon > /dev/null
+          
+          for key in $(echo '${{ inputs.path-map }}' | jshon -k); do
+            value=$(echo '${{ inputs.path-map }}' | jshon -e "$key" -u)
+            inputs+=" "$key" "$value""
+          done
+          
+          unity-packer pack "${{ inputs.package }}"$inputs
+        elif grep -i -q "unpack" <<< "${{ inputs.command }}"; then
+          unity-packer unpack "${{ inputs.package }}" "${{ inputs.output-path }}"
+        else
+          echo "Error: Command '"${{ inputs.command }}"' is not an valid command, use command 'pack' or 'unpack'." >&2
+          exit 1
+        fi
+      shell: bash
