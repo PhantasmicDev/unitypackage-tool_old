@@ -1,8 +1,12 @@
-name: UnityPackage Packer
-description: Pack or unpack .unitypackage files without the Unity editor or Unity project.
+name: "UnityPackage Packer"
+author: "@PhantasmicDev"
+description: "Pack or unpack .unitypackage files without the Unity editor or Unity project folder."
+branding:
+  icon: "package"
+  color: "white"
 inputs:
   command:
-    description: "Chose between the 'pack' or 'unpack' command"
+    description: "Chose between the 'pack' or 'unpack' command."
     required: true
   package:
     description: "If packing, this is the package that will be generated, must end with '.unitypackage'. If unpacking this is the '.unitypackage' to extract."
