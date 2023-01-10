@@ -7,7 +7,6 @@ This action leverages [unity-packer by MirageNet](https://github.com/MirageNet/u
 ## Inputs
 
 ```yaml
-
 - uses: PhantasmicDev/unitypackage-packer@v1
   with:
     # Either 'pack' or 'unpack'.
@@ -22,5 +21,23 @@ This action leverages [unity-packer by MirageNet](https://github.com/MirageNet/u
     
     # The location where the '.unitypackage' content will be extracted to when unpacking.
     output-path: ''
+```
 
+## Usage
+### Packing
+Packing a repo that follows [Unity's package layout](https://docs.unity3d.com/Manual/cus-layout.html):
+
+```yaml
+- uses: PhantasmicDev/unitypackage-packer@v1
+  with:
+      command: "pack"
+      package: "my-package.unitypackage"
+      
+      # In this example the workspace directory is considered the 'com.organization.package' directory and 
+      # for Unity to extract our directory inside the 'Packages' folder, we map our workspace directory to
+      # the target path 'Packages/{desired package directory name}'.
+      pack-map: |
+        {
+          "${{ github.workspace }}" : "Packages/com.phantasmicdev.mycoolpackage"
+        }
 ```
