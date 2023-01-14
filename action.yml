@@ -30,6 +30,11 @@ runs:
         dotnet tool install --verbosity quiet --global unity-packer --version 2.1.3
         
         if grep -i -q "pack" <<< "${{ inputs.command }}"; then
+          if ! [ $(echo ${{ inputs.pack-map }} | jq empty > /dev/null 2>&1; echo $?) -eq 0 ]; then
+            echo "Error: The provided input 'pack-map' is invalid. Check for correct JSON format." >&2
+            exit 1
+          fi
+          
           sudo apt install jshon > /dev/null
           
           for key in $(echo '${{ inputs.pack-map }}' | jshon -k); do
