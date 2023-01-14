@@ -14,8 +14,8 @@ inputs:
   pack-map:
     description: "Key value entries of files/directories to pack and it's target location within the package."
     required: false
-  output-path:
-    description: "If unpacking, this is the location where the package content will be extracted to."
+  unpack-directory:
+    description: "The location where the package content will be extracted to."
     required: false
 
 runs:
@@ -44,7 +44,7 @@ runs:
           
           unity-packer pack "${{ inputs.package }}"$inputs
         elif grep -i -q "unpack" <<< "${{ inputs.command }}"; then
-          unity-packer unpack "${{ inputs.package }}" "${{ inputs.output-path }}"
+          unity-packer unpack "${{ inputs.package }}" "${{ inputs.unpack-directory }}"
         else
           echo "Error: Command '"${{ inputs.command }}"' is not an valid command, use command 'pack' or 'unpack'." >&2
           exit 1
