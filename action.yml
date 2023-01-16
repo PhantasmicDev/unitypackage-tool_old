@@ -27,7 +27,7 @@ runs:
         pack_map="$(echo '${{ inputs.pack-map }}')"
         
         if echo "$pack_map" | jq '.' > /dev/null; then
-          echo "pack-map=$pack_map" >> GITHUB_OUTPUT
+          echo "pack-map=$pack_map" >> $GITHUB_OUTPUT
         else
           echo "Error: The provided input 'pack-map' is invalid. Check for proper JSON format." >&2
           exit 1
@@ -36,9 +36,9 @@ runs:
         shopt -s nocasematch
         
         if [[ "${{ inputs.command }}" == "pack" ]]; then
-          echo "command=pack" >> GITHUB_OUTPUT
+          echo "command=pack" >> $GITHUB_OUTPUT
         elif [[ "${{ inputs.command }}" == "unpack" ]]; then
-          echo "command=unpack" >> GITHUB_OUTPUT
+          echo "command=unpack" >> $GITHUB_OUTPUT
         else
           echo "Error: Command '"${{ inputs.command }}"' is not an valid command, use command 'pack' or 'unpack'." >&2
           exit 1
