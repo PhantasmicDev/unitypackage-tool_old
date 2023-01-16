@@ -20,33 +20,49 @@ inputs:
 
 runs:
   using: "composite"
-  steps:
+  steps:    
+    - name: Validate Inputs
+      id: validate-inputs
+      run: |
+        pack_map="$(echo '${{ inputs.pack-map }}')"
+        
+        if echo "$pack_map" | jq '.' > /dev/null; then
+          echo "pack-map=$pack_map" >> GITHUB_OUTPUT
+        else
+          echo "Error: The provided input 'pack-map' is invalid. Check for proper JSON format." >&2
+          exit 1
+        fi
+        
+        shopt -s nocasematch
+        
+        if [[ "${{ inputs.command }}" == "pack" ]]; then
+          echo "command=pack" >> GITHUB_OUTPUT
+        elif [[ "${{ inputs.command }}" == "unpack" ]]; then
+          echo "command=unpack" >> GITHUB_OUTPUT
+        else
+          echo "Error: Command '"${{ inputs.command }}"' is not an valid command, use command 'pack' or 'unpack'." >&2
+          exit 1
+        fi        
+      shell: bash
+      
     - uses: actions/setup-dotnet@v3
       with:
         dotnet-version: '3.1.x'
-    
+      
     - run: |
         # Install Unity Packer
         dotnet tool install --verbosity quiet --global unity-packer --version 2.1.3
         
-        if grep -i -q "pack" <<< "${{ inputs.command }}"; then
-          if ! [ $(echo ${{ inputs.pack-map }} | jq empty > /dev/null 2>&1; echo $?) -eq 0 ]; then
-            echo "Error: The provided input 'pack-map' is invalid. Check for correct JSON format." >&2
-            exit 1
-          fi
-          
+        if [[ ${{ steps.validate-inputs.outputs.command }} == "pack" ]]; then
           sudo apt install jshon > /dev/null
           
-          for key in $(echo '${{ inputs.pack-map }}' | jshon -k); do
-            value=$(echo '${{ inputs.pack-map }}' | jshon -e "$key" -u)
+          for key in $(echo '${{ steps.validate-inputs.pack-map }}' | jshon -k); do
+            value=$(echo '${{ steps.validate-inputs.pack-map }}' | jshon -e "$key" -u)
             inputs+=" "$key" "$value""
           done
           
           unity-packer pack "${{ inputs.package }}"$inputs
-        elif grep -i -q "unpack" <<< "${{ inputs.command }}"; then
-          unity-packer unpack "${{ inputs.package }}" "${{ inputs.unpack-directory }}"
         else
-          echo "Error: Command '"${{ inputs.command }}"' is not an valid command, use command 'pack' or 'unpack'." >&2
-          exit 1
+          unity-packer unpack "${{ inputs.package }}" "${{ inputs.unpack-directory }}"
         fi
       shell: bash
