@@ -44,11 +44,10 @@ runs:
         dotnet tool install --verbosity quiet --global unity-packer --version 2.1.3
         
         shopt -s nocasematch
-        if [[ ${{ inputs.command }} == "pack" ]]; then
-          sudo apt install jshon > /dev/null
-          
-          for key in $(echo '${{ inputs.pack-map }}' | jshon -k); do
-            value=$(echo '${{ inputs.pack-map }}' | jshon -e "$key" -u)
+        if [[ ${{ inputs.command }} == "pack" ]]; then          
+          for entry in $(echo '${{ inputs.pack-map }}' | jq -c 'to_entries[]'); do
+            key=$(echo $entry | jq -r '.key')
+            value=$(echo $entry | jq -r '.value')
             inputs+=" "$key" "$value""
           done
           
