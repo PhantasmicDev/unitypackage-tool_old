@@ -1,6 +1,6 @@
 # UnityPackage Tool
 
-A GitHub action that can pack and unpack Unity [asset packages](https://docs.unity3d.com/Manual/AssetPackages.html) without the Unity editor or Unity project folder.
+A GitHub action that can pack or unpack Unity [asset packages](https://docs.unity3d.com/Manual/AssetPackages.html) without the Unity editor or Unity project folder.
 
 This action leverages [unity-packer by MirageNet](https://github.com/MirageNet/unity-packer), a fork of [UnityPackager by TwoTenPvP](https://github.com/TwoTenPvP/UnityPackager), to pack or unpack the .unitypackage files.
 
