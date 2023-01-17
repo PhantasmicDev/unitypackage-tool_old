@@ -22,27 +22,17 @@ runs:
   using: "composite"
   steps:    
     - name: Validate Inputs
-      id: validate-inputs
       run: |
-        pack_map="$(echo '${{ inputs.pack-map }}')"
-        
-        if echo "$pack_map" | jq '.' > /dev/null; then
-          echo "pack-map=$pack_map" >> $GITHUB_OUTPUT
-        else
+        if ! echo '${{ inputs.pack-map }}' | jq -e '.' > /dev/null; then
           echo "Error: The provided input 'pack-map' is invalid. Check for proper JSON format." >&2
           exit 1
         fi
         
         shopt -s nocasematch
-        
-        if [[ "${{ inputs.command }}" == "pack" ]]; then
-          echo "command=pack" >> $GITHUB_OUTPUT
-        elif [[ "${{ inputs.command }}" == "unpack" ]]; then
-          echo "command=unpack" >> $GITHUB_OUTPUT
-        else
+        if [[ "${{ inputs.command }}" != "pack" && "${{ inputs.command }}" != "unpack" ]];then
           echo "Error: Command '"${{ inputs.command }}"' is not an valid command, use command 'pack' or 'unpack'." >&2
           exit 1
-        fi        
+        fi
       shell: bash
       
     - uses: actions/setup-dotnet@v3
@@ -53,11 +43,12 @@ runs:
         # Install Unity Packer
         dotnet tool install --verbosity quiet --global unity-packer --version 2.1.3
         
-        if [[ ${{ steps.validate-inputs.outputs.command }} == "pack" ]]; then
+        shopt -s nocasematch
+        if [[ ${{ inputs.command }} == "pack" ]]; then
           sudo apt install jshon > /dev/null
           
-          for key in $(echo '${{ steps.validate-inputs.pack-map }}' | jshon -k); do
-            value=$(echo '${{ steps.validate-inputs.pack-map }}' | jshon -e "$key" -u)
+          for key in $(echo '${{ inputs.pack-map }}' | jshon -k); do
+            value=$(echo '${{ inputs.pack-map }}' | jshon -e "$key" -u)
             inputs+=" "$key" "$value""
           done
           
